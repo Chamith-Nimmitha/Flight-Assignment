@@ -3,6 +3,8 @@
 #include <string.h>
 #include <cstdlib>
 #include <fstream>
+#include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -46,28 +48,22 @@ class Flight{
 		int numAvailableSeatsInE=0;
 		Seat *availableSeats;
 	Flight(){}
-	Flight(string &flightNumber,string &departureDateTime,string &dAirportCode,string &aAirportCode,int numAvailableSeatsInB,int numAvailableSeatsInE,Seat *s);
+	Flight(string &flightNumber,string &departureDateTime,string &dAirportCode,string &aAirportCode,int &numAvailableSeatsInB,int &numAvailableSeatsInE,Seat* &s);
 	void displayBasic();
 	void displayAvailableSeats();
 	void booking(int row,char clas,char col);
+	int checkBooking(int row,char clas,string col,int pos);
 	~Flight();
 };
 
-Flight::Flight(string &flightNumber,string &departureDateTime,string &dAirportCode,string &aAirportCode,int numAvailableSeatsInB,int numAvailableSeatsInE,Seat *s){
+Flight::Flight(string &flightNumber,string &departureDateTime,string &dAirportCode,string &aAirportCode,int &numAvailableSeatsInB,int &numAvailableSeatsInE,Seat* &s){
 	this->flightNumber = flightNumber;
 	this->departureDateTime = departureDateTime;
 	this->dAirportCode = dAirportCode;
 	this->aAirportCode = aAirportCode;
 	this->numAvailableSeatsInB = numAvailableSeatsInB;
 	this->numAvailableSeatsInE = numAvailableSeatsInE;
-
-	Seat *temp= (Seat*)malloc(sizeof(Seat)*(this->numAvailableSeatsInB+numAvailableSeatsInE));
-	int count = 0;
-	while(count != (numAvailableSeatsInB+numAvailableSeatsInE)){
-		temp[count] = s[count];
-		count++;
-	}
-	this->availableSeats = temp;
+	this->availableSeats = s;
 }
 
 void Flight::displayBasic(){
@@ -89,17 +85,38 @@ void Flight::displayAvailableSeats(){
 }
 
 Flight::~Flight(){
+
+	ofstream f("saved.txt",ios::app);
+	f << flightNumber << endl;
+	f << departureDateTime << endl;
+	f << dAirportCode << endl;
+	f << aAirportCode;
 	Seat *tmp;
+
+	int row = 0;
+	char clas = '\0';
+
 	while(availableSeats != NULL){
+		if((row != availableSeats->row) || (clas != availableSeats->clas)){
+			row = availableSeats->row;
+			clas = availableSeats->clas;
+			f << endl;
+			f << availableSeats->row << " ";
+			f << availableSeats->clas << " ";
+		}
+		f << availableSeats->col;
 		tmp = availableSeats;
 		availableSeats = availableSeats->next;
 		tmp->next = NULL;
 		free(tmp);
 	}
+	f << endl <<endl;
+	f.close();
 }
 
-int readAndStore(Flight **allFlights){
-	int numOfFlight=0;
+// Read whole file and store data
+void readAndStore(vector<Flight *> &allFlights){
+
 	string flightNumber="";
 	string departureDateTime = "";
 	string dAirportCode = "";
@@ -108,17 +125,25 @@ int readAndStore(Flight **allFlights){
 	int numAvailableSeatsInB=0;
 	int numAvailableSeatsInE=0;
 
+	//open file in read mode
 	ifstream sf("./sample dataset.txt");
 
+	//if file successfully open
+	if(sf.fail()){
+		cout << "ERROR : File openning failed..." << endl;
+		exit(0);
+	}
+
 	string line;
-	int count = 0,noFlight=0;
-	while(!sf.eof()){
+	int count = 0;
+	//read file line by line until eof is reach
+	while(sf.good()){
 		count++;
 		getline(sf,line);
 
 		if(line.empty()){
-			allFlights[numOfFlight] = new Flight(flightNumber,departureDateTime,dAirportCode,aAirportCode,numAvailableSeatsInB,numAvailableSeatsInE,availableSeats);
-			numOfFlight++;
+			Flight *tmp = new Flight(flightNumber,departureDateTime,dAirportCode,aAirportCode,numAvailableSeatsInB,numAvailableSeatsInE,availableSeats);
+			allFlights.push_back(tmp);
 			count = 0;
 			flightNumber="";
 			departureDateTime = "";
@@ -127,7 +152,6 @@ int readAndStore(Flight **allFlights){
 			availableSeats=NULL;
 			numAvailableSeatsInB=0;
 			numAvailableSeatsInE=0;
-			noFlight++;
 			continue;
 		}
 
@@ -150,32 +174,32 @@ int readAndStore(Flight **allFlights){
 
 			default:
 				if(count >4){
-					int pos = line.find(" ");
-					int row = stoi(line.substr(0,pos));
-					pos++;
-					char clas = (line.substr(pos,1))[0];
 
-					pos+=2;
+					int row;
+					char clas;
+					string col;
+					stringstream s(line);
+					s >> row >> clas >> col;
 
-					while(line[pos] != '\0'){
+					for(int i=0; i<col.size(); i++){
 						if(clas == 'B')
 							numAvailableSeatsInB++;
 						else
 							numAvailableSeatsInE++;
-						Seat *newSeat = new Seat(row,line[pos],clas);
+						Seat *newSeat = new Seat(row,col[i],clas);
 						availableSeats = addSeat(availableSeats,newSeat);
-						pos++;
 					}
-					Seat *a = availableSeats;
 				}
 		}
 
 	}	
 	sf.close();
-	return noFlight;
+	return;
 }
 
+//booking the requested seat
 void Flight::booking(int row,char clas,char col){
+	//tmp - current node , ptr = previous node
 	Seat* ptr=availableSeats,*tmp=availableSeats;
 	while(tmp != NULL){
 		if(tmp->row == row){
@@ -190,27 +214,58 @@ void Flight::booking(int row,char clas,char col){
 						tmp->next = NULL;
 					}
 					free(tmp);
-					if(clas == 'B'){
-						numAvailableSeatsInB--;
+					if(clas == 'E'){
+						numAvailableSeatsInE--;
 					}else{
 						numAvailableSeatsInE--;
 					}
+					cout << "Seat " << row <<" "<< clas <<" "<<col<<" booking success..."<<endl; 
 					return;
 				}
 				ptr = tmp;
 				tmp = tmp->next;
 			}
+			cout << "Your input class or Column is invalid.." << endl;
 			return;
 		}
 		ptr = tmp;
 		tmp = tmp->next;
 	}
+	cout << "Please Enter available seat..." << endl;
 	return;
 }
 
+int Flight::checkBooking(int row,char clas,string col,int pos){
+	Seat* ptr=availableSeats,*tmp=availableSeats;
+
+	if(col[pos] == '\0'){
+		return 1;
+	}
+
+	while(tmp != NULL){
+		if(tmp->row == row){
+			while(tmp->row == row){
+				if(tmp->clas == clas && tmp->col == col[pos] ){
+					return checkBooking(row,clas,col,++pos);
+				}
+				ptr = tmp;
+				tmp = tmp->next;
+			}
+			cout << "Your input class or Column is invalid.." << endl;
+			return 0;
+		}
+		ptr = tmp;
+		tmp = tmp->next;
+	}
+	cout << "Please Enter available seat..." << endl;
+	return 0;
+}
+
 int main(){
-	Flight *allFlights[5];
-	int noFlight = readAndStore(allFlights);
+	//allFlights array point each Flight object
+	vector<Flight *> allFlights;
+	readAndStore(allFlights);
+	int numOfFlight = allFlights.size();
 	int op=0;
 
 	while(true){
@@ -221,7 +276,7 @@ int main(){
 		switch(op){
 
 			case 1 :{
-				for (int i=0; i<noFlight; i++){
+				for (int i=0; i<numOfFlight; i++){
 					if((allFlights[i]->numAvailableSeatsInE+allFlights[i]->numAvailableSeatsInB) >0){
 						allFlights[i]->displayBasic();
 					}
@@ -235,7 +290,7 @@ int main(){
 				cin >> fl;
 				int flag=0;
 
-				for(int i=0; i<noFlight; i++){
+				for(int i=0; i<numOfFlight; i++){
 					if(fl == allFlights[i]->flightNumber){
 						allFlights[i]->displayBasic();
 						allFlights[i]->displayAvailableSeats();					
@@ -243,7 +298,7 @@ int main(){
 					}
 				}
 				if(flag==0){
-					cout << "Requiested flight is not fount. Please check and try again..."<<endl<<endl;
+					cout << "Requiested flight is not found. Please check and try again..."<<endl<<endl;
 				}
 				break;
 			}
@@ -254,58 +309,81 @@ int main(){
 					cin >> fl;
 					int flag=0;
 
-					for(int i=0; i<noFlight; i++){
+					for(int i=0; i<numOfFlight; i++){
 						if(fl == allFlights[i]->flightNumber){
 							flag = 1;
-							int numSeats;
+							string tmp;
 							cout << "Number of seats : ";
-							cin >> numSeats;
+							int numSeats;
+							cin >> tmp;
+							stringstream s(tmp);
+							s >> numSeats;
+							//if user input is not integer
+							if(numSeats == 0 || numSeats > 1000){
+								cout << "Invalid Number of seats." <<endl;
+								break;
+							}
 							if((allFlights[i]->numAvailableSeatsInE + allFlights[i]->numAvailableSeatsInB) >= numSeats){
 								cout << "Number of seats available : " << (allFlights[i]->numAvailableSeatsInE + allFlights[i]->numAvailableSeatsInB) <<endl;
 								allFlights[i]->displayAvailableSeats();
 							}else{
 								cout << "Requiested number of seats are not available.." << endl <<endl;
 							}
+							break;
 						}
 					}
+					//if user input Flight is not found
 					if(flag == 0)
 						cout << "Input Flight number is not found..." <<endl << endl;
-
 					break;
 			}
 			case 4:{
-				string fl;
-				cout << "Search Flight : " ;
-				cin >> fl;
+				string flg;
+				cout << "Search Flight : ";
+				cin >> flg;
+				int x=0;
 				int flag=0;
 
-				for(int i=0; i<noFlight; i++){
-					if(fl == allFlights[i]->flightNumber){
+				for(int i=0; i<numOfFlight; i++){
+					if(flg == allFlights[i]->flightNumber){
 						flag = 1;
-						cout << "Enter seat(row class col) : ";
-						int pos=0;
-						string srow;
 						int row;
-						string col;
 						char clas;
-
-						cin >> srow >> clas >> col;
-						row = stoi(srow);
-
-						
-						while(col[pos] != '\0'){
+						string col;
+						string tmp;
+						int pos=0;
+						cout << "Enter seat(row class col) : ";
+						getline(cin,tmp);
+						getline(cin,tmp);
+						stringstream s(tmp);
+						s >> row >> clas >> col;
+						cout << row << clas << col<<endl;
+						if(row ==0 || row >1000){
+							cout << "Row number is invalid" << endl;
+							exit(0);
+						}
+	
+							x = allFlights[i]->checkBooking(row,clas,col,0);
+						while(x==1 && col[pos] != '\0'){
 							allFlights[i]->booking(row,clas,col[pos]);
 							pos++;
+							if(x == 0){
+
+							}
 						}
 					}
 				}
-				if(flag == 1){
-					cout << "success" << endl;
+				if(flag == 0){
+					cout << "Requested Flight is not found.." << endl;
 				}
 				break;
 			}
 			case 5:{
-				for(int i=0; i<noFlight; i++){
+
+				ofstream f("saved.txt");
+				f.close();
+
+				for(int i=0; i<numOfFlight; i++){
 					allFlights[i]->~Flight();
 					free(allFlights[i]);
 				}
