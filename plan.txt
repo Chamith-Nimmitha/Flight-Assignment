@@ -1,0 +1,39 @@
+
+In Flight class:
+		string flightNumber;
+		string departureDateTime;
+		string dAirportCode;
+		string aAirportCode;
+		int numAvailableSeatsInB=0;
+		int numAvailableSeatsInE=0;
+		Seat *availableSeats;
+
+
+option 1 :  Display available flights
+		if at least one seat available,then display
+			flightNumber
+			departureDateTime
+			dAirportCode
+			aAirportCode
+			numOfAvailableSeats in each class(numAvailableSeatsInB,numAvailableSeatsInE)
+
+option 2 : View flight
+		search flight. if flight found,then display
+			flightNumber
+			departureDateTime
+			dAirportCode
+			aAirportCode
+			numOfAvailableSeats in each class
+			display available seats with class
+
+option 3 : Seat availability
+		search flight, then check seat availability
+			display num of seats available(numAvailableSeatsInB+numAvailableSeatsInE)
+			available seats with class
+
+option 4 : Seat booking
+	first search flight,then check given seat is available. if availyable,then
+			book the seat
+
+	else
+		display error message
