@@ -335,18 +335,26 @@ int main(){
 	readAndStore(allFlights);
 	int numOfFlight = allFlights.size();
 	int op=0,menuSelector=0;
+	string ops;
 
 	
 	while(true){
 		
 		optionMenu(menuSelector++);
-		cout << setw(20) << endl << "Select a option : ";
-		cin >> op;
+		cout << endl  << "\e[32mSelect a option : ";
+		getline(cin,ops);
+		stringstream s(ops);
+		s >> op ;
+		if(op == 0 | op >5){
+			cout << "Invalid input." << endl;
+			continue;
+		}
 		switch(op){
+
 
 			case 1 :{
 				for (int i=0; i<numOfFlight; i++){
-					cout << endl << "~~~~~~~~~~~ RESULT ~~~~~~~~~~~~" << endl << endl;
+					cout << endl << "\e[35m~~~~~~~~~~~ RESULT ~~~~~~~~~~~~\e[37m" << endl << endl;
 					if((allFlights[i]->getNumAvailableSeats()) >0){
 						allFlights[i]->displayBasic();
 					}
@@ -357,10 +365,10 @@ int main(){
 			case 2 :{
 				string fl;
 				cout << "Search Flight : " ;
-				cin >> fl;
+				getline(cin,fl);
 				int flag=0;
 
-				cout << endl << "~~~~~~~~~~~ RESULT ~~~~~~~~~~~~" << endl << endl;
+				cout << endl << "\e[35m~~~~~~~~~~~ RESULT ~~~~~~~~~~~~\e[37m" << endl << endl;
 				for(int i=0; i<numOfFlight; i++){
 					if(fl == allFlights[i]->getFlightNumber()){
 						allFlights[i]->displayBasic();
@@ -387,7 +395,7 @@ int main(){
 							cout << "Number of seats : ";
 							int numSeats;
 							cin >> strNumSeats;
-							cout << endl << "~~~~~~~~~~~ RESULT ~~~~~~~~~~~~" << endl << endl;
+							cout << endl << "\e[35m~~~~~~~~~~~ RESULT ~~~~~~~~~~~~\e[37m" << endl << endl;
 							stringstream s(strNumSeats);
 							s >> numSeats;
 							//if user input is not integer
@@ -427,7 +435,7 @@ int main(){
 						cout << "Enter seat(row class col) : ";
 						getline(cin,userInput2);
 						getline(cin,userInput2);
-						cout << endl << "~~~~~~~~~~~ RESULT ~~~~~~~~~~~~" << endl << endl;
+						cout << endl << "\e[35m~~~~~~~~~~~ RESULT ~~~~~~~~~~~~\e[37m" << endl << endl;
 						stringstream s(userInput2);
 						s >> row >> clas >> col;
 						// cout << row << clas << col<<endl;
@@ -473,7 +481,7 @@ void optionMenu(int menuSelector){
 	switch(menuSelector){
 
 		case 0:{
-			cout << "          ############################################|" << endl;
+			cout <<endl << "\e[31m         ############################################|" << endl;
 			cout << "         #                   WELCOME                # |" << endl;        
 			cout << "        |############################################ | " << endl;
 			cout << "        |                                           | |" << endl;
@@ -483,12 +491,12 @@ void optionMenu(int menuSelector){
 			cout << "        |        4. Seat booking                    | |" << endl;
 			cout << "        |        5.Exit                             | |" << endl;
 			cout << "        |-------------------------------------------| |" << endl;
-			cout << "        ```````````````````````````````````````````````" << endl;
+			cout << "        ```````````````````````````````````````````````\e[37m" << endl;
 			break;
 		}
 
 		case 1:{
-			cout << "        |*|********************************************|" << endl;
+			cout << endl << "\e[36m        |*|********************************************|" << endl;
 			cout << "        | |                    MENU                    |" << endl;        
 			cout << "        |*|******************************************|*| " << endl;
 			cout << "        | |*                                       * | |" << endl;
@@ -498,12 +506,12 @@ void optionMenu(int menuSelector){
 			cout << "        | |*****     4. Seat booking           ***** | |" << endl;
 			cout << "        |*|***    5.Exit                         *** |*|" << endl;
 			cout << "        |--------------------------------------------| |" << endl;
-			cout << "        ````````````````````````````````````````````````" << endl;
+			cout << "        ````````````````````````````````````````````````\e[37m" << endl;
 			break;
 		}
 
 		case 2:{
-			cout << "                     *               *       *        " << endl;
+			cout << " \e[34m                    *               *       *        " << endl;
 			cout << "         *             $ MENU $                ?   *  " << endl;        
 			cout << "               ?    *                    *            " << endl;
 			cout << "                              *                 *     " << endl;
@@ -513,12 +521,12 @@ void optionMenu(int menuSelector){
 			cout << "       *      4. Seat booking       *           ?     " << endl;
 			cout << "              5.Exit           *                    * " << endl;
 			cout << "        ----------------------------------------------" << endl;
-			cout << "        ``````````````````````````````````````````````" << endl;
+			cout << "        ``````````````````````````````````````````````\e[37m" << endl;
 			break;
 		}
 
 		case 3:{
-			
+
 		}
 	}
 }
