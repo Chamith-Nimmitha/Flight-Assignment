@@ -353,8 +353,8 @@ int main(){
 
 
 			case 1 :{
+				cout << endl << "\e[35m~~~~~~~~~~~ RESULT ~~~~~~~~~~~~\e[37m" << endl << endl;
 				for (int i=0; i<numOfFlight; i++){
-					cout << endl << "\e[35m~~~~~~~~~~~ RESULT ~~~~~~~~~~~~\e[37m" << endl << endl;
 					if((allFlights[i]->getNumAvailableSeats()) >0){
 						allFlights[i]->displayBasic();
 					}
@@ -385,7 +385,7 @@ int main(){
 			case 3 :{
 					string searchFlight;
 					cout << "Search Flight : " ;
-					cin >> searchFlight;
+					getline(cin,searchFlight);
 					int flag=0;
 
 					for(int i=0; i<numOfFlight; i++){
@@ -420,7 +420,7 @@ int main(){
 			case 4:{
 				string flg;
 				cout << "Search Flight : ";
-				cin >> flg;
+				getline(cin,flg);
 				int bokingCheckFlag=0;
 				int flag=0;
 
@@ -434,7 +434,7 @@ int main(){
 						int pos=0;
 						cout << "Enter seat(row class col) : ";
 						getline(cin,userInput2);
-						getline(cin,userInput2);
+						// getline(cin,userInput2);
 						cout << endl << "\e[35m~~~~~~~~~~~ RESULT ~~~~~~~~~~~~\e[37m" << endl << endl;
 						stringstream s(userInput2);
 						s >> row >> clas >> col;
