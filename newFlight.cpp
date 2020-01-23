@@ -394,9 +394,9 @@ int main(){
 							string strNumSeats;
 							cout << "Number of seats : ";
 							int numSeats;
-							cin >> strNumSeats;
-							cout << endl << "\e[35m~~~~~~~~~~~ RESULT ~~~~~~~~~~~~\e[37m" << endl << endl;
 							stringstream s(strNumSeats);
+							getline(cin,strNumSeats);
+							cout << endl << "\e[35m~~~~~~~~~~~ RESULT ~~~~~~~~~~~~\e[37m" << endl << endl;
 							s >> numSeats;
 							//if user input is not integer
 							if(numSeats == 0 || numSeats > 1000){
@@ -439,7 +439,7 @@ int main(){
 						stringstream s(userInput2);
 						s >> row >> clas >> col;
 						// cout << row << clas << col<<endl;
-						if(row ==0 || row >1000){
+						if(row == 0 || row >1000){
 							cout << "Row number is invalid" << endl;
 							break;
 						}
