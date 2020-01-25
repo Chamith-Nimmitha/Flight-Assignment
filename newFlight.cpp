@@ -146,7 +146,7 @@ void Flight::displayAvailableSeats(){
 	}	
 }
 
-// check requested seat is available in selected Flight
+// check requested seats are available in selected Flight
 // seats is available, then return 1.. otherwise return 0
 int Flight::checkBooking(int row,char clas,string col,int pos){
 	//pre - previous node  current - current node
@@ -217,7 +217,7 @@ void Flight::booking(int row,char clas,char col){
 Flight::~Flight(){
 	//save all data into data file
 	// free allocated space
-	ofstream f("saved.txt",ios::app);
+	ofstream f("saved.dat",ios::app);
 	f << flightNumber << endl;
 	f << departureDateTime << endl;
 	f << dAirportCode << endl;
